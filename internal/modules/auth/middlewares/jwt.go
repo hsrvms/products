@@ -11,25 +11,27 @@ import (
 func JWTMiddleware(jwtService *services.JWTService) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// Get token from header
+			var tokenString string
+
 			authHeader := c.Request().Header.Get("Authorization")
-			if authHeader == "" {
+			if after, ok := strings.CutPrefix(authHeader, "Bearer "); ok {
+				tokenString = after
+			}
+
+			if tokenString == "" {
+				cookie, err := c.Cookie("auth_token")
+
+				if err == nil {
+					tokenString = cookie.Value
+				}
+			}
+
+			if tokenString == "" {
 				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"error": "Authorization header required",
+					"error": "no token found (header or cookie)",
 				})
 			}
 
-			// Check if header starts with "Bearer "
-			if !strings.HasPrefix(authHeader, "Bearer ") {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"error": "Invalid authorization header format",
-				})
-			}
-
-			// Extract token
-			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-			// Validate token
 			claims, err := jwtService.ValidateToken(tokenString)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{

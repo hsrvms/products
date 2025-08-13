@@ -23,14 +23,6 @@ func NewHandler(authService *services.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
-	// bodyBytes, err := io.ReadAll(c.Request().Body)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, map[string]string{
-	// 		"error": "failed to read request body",
-	// 	})
-	// }
-
-	// fmt.Println("Raw request Body:", string(bodyBytes))
 
 	var req dto.RegisterRequest
 	if err := c.Bind(&req); err != nil {
@@ -59,6 +51,16 @@ func (h *AuthHandler) Register(c echo.Context) error {
 			"error": "Failed to register user",
 		})
 	}
+
+	cookie := new(http.Cookie)
+	cookie.Name = "auth_token"
+	cookie.Value = response.Token
+	cookie.Path = "/"
+	cookie.HttpOnly = true
+	cookie.Secure = false // make it true on https
+	cookie.SameSite = http.SameSiteStrictMode
+	cookie.MaxAge = 3600
+	c.SetCookie(cookie)
 
 	return c.JSON(http.StatusCreated, response)
 }
@@ -90,6 +92,16 @@ func (h *AuthHandler) Login(c echo.Context) error {
 			"error": "Failed to login",
 		})
 	}
+
+	cookie := new(http.Cookie)
+	cookie.Name = "auth_token"
+	cookie.Value = response.Token
+	cookie.Path = "/"
+	cookie.HttpOnly = true
+	cookie.Secure = false // make it true on https
+	cookie.SameSite = http.SameSiteStrictMode
+	cookie.MaxAge = 3600
+	c.SetCookie(cookie)
 
 	return c.JSON(http.StatusOK, response)
 }
