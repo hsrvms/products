@@ -50,8 +50,9 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 	}
 
 	return &dto.AuthResponse{
-		Token: token,
-		User:  *user,
+		Success: true,
+		Token:   token,
+		User:    *user,
 	}, nil
 }
 
@@ -71,8 +72,9 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.Au
 	}
 
 	return &dto.AuthResponse{
-		Token: token,
-		User:  *user,
+		Success: true,
+		Token:   token,
+		User:    *user,
 	}, nil
 }
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"products/internal/modules/auth/dto"
 	"products/internal/modules/auth/services"
@@ -62,15 +63,27 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	cookie.MaxAge = 3600
 	c.SetCookie(cookie)
 
+	c.Response().Header().Set("HX-Location", "/")
+
 	return c.JSON(http.StatusCreated, response)
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
 	var req dto.LoginRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid request body",
-		})
+
+	ct := c.Request().Header.Get("Content-Type")
+
+	if strings.HasPrefix(ct, "application/json") {
+		fmt.Println(1)
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": "Invalid JSON body",
+			})
+		}
+	} else {
+		fmt.Println(2)
+		req.Email = strings.ToLower(strings.TrimSpace(c.FormValue("email")))
+		req.Password = c.FormValue("password")
 	}
 
 	if err := h.validator.Struct(req); err != nil {
@@ -102,6 +115,8 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	cookie.SameSite = http.SameSiteStrictMode
 	cookie.MaxAge = 3600
 	c.SetCookie(cookie)
+
+	c.Response().Header().Set("HX-Location", "/")
 
 	return c.JSON(http.StatusOK, response)
 }

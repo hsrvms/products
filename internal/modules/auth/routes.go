@@ -17,6 +17,9 @@ func RegisterRoutes(e *echo.Echo, api *echo.Group, database *db.Database) {
 	authService := services.NewAuthService(authRepo, jwtService)
 	authHandler := handlers.NewHandler(authService)
 
+	e.GET("/login", authHandler.ViewLogin)
+	e.GET("/register", authHandler.ViewRegister)
+
 	authGroup := api.Group("/auth")
 	authGroup.POST("/register", authHandler.Register)
 	authGroup.POST("/login", authHandler.Login)
