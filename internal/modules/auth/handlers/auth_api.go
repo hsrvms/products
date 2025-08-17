@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"go-starter/internal/modules/auth/dto"
+	"go-starter/internal/modules/auth/services"
 	"net/http"
-	"products/internal/modules/auth/dto"
-	"products/internal/modules/auth/services"
 	"strings"
 
 	"github.com/go-playground/validator/v10"

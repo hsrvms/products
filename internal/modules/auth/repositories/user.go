@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"products/internal/modules/auth/models"
-	"products/pkg/db"
+	"go-starter/internal/modules/auth/models"
+	"go-starter/pkg/db"
 	"time"
 )
 

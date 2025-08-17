@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"go-starter/internal/modules/auth/services"
 	"net/http"
-	"products/internal/modules/auth/services"
 	"strings"
 
 	"github.com/labstack/echo/v4"

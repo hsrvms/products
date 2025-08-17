@@ -1,6 +1,6 @@
 package dto
 
-import "products/internal/modules/auth/models"
+import "go-starter/internal/modules/auth/models"
 
 type AuthResponse struct {
 	Success bool        `json:"success"`

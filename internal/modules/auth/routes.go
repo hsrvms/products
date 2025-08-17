@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"products/internal/modules/auth/handlers"
-	"products/internal/modules/auth/middlewares"
-	"products/internal/modules/auth/repositories"
-	"products/internal/modules/auth/services"
-	"products/pkg/db"
+	"go-starter/internal/modules/auth/handlers"
+	"go-starter/internal/modules/auth/middlewares"
+	"go-starter/internal/modules/auth/repositories"
+	"go-starter/internal/modules/auth/services"
+	"go-starter/pkg/db"
 
 	"github.com/labstack/echo/v4"
 )

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"products/internal/modules/dashboard/views"
+	"go-starter/internal/modules/dashboard/views"
 
 	"github.com/labstack/echo/v4"
 )

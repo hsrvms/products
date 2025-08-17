@@ -1,10 +1,10 @@
 package dashboard
 
 import (
-	"products/internal/modules/auth/middlewares"
-	"products/internal/modules/auth/services"
-	"products/internal/modules/dashboard/handlers"
-	"products/pkg/db"
+	"go-starter/internal/modules/auth/middlewares"
+	"go-starter/internal/modules/auth/services"
+	"go-starter/internal/modules/dashboard/handlers"
+	"go-starter/pkg/db"
 
 	"github.com/labstack/echo/v4"
 )
