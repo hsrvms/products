@@ -36,83 +36,80 @@ func (h *AuthWEBHandler) ViewRegister(c echo.Context) error {
 }
 
 func (h *AuthWEBHandler) Login(c echo.Context) error {
-	var req dto.LoginRequest
 
-	req.Email = strings.ToLower(strings.TrimSpace(c.FormValue("email")))
-	req.Password = c.FormValue("password")
+	req := dto.LoginRequest{
+		Email:    strings.ToLower(strings.TrimSpace(c.FormValue("email"))),
+		Password: c.FormValue("password"),
+	}
 
 	if err := h.validator.Struct(req); err != nil {
-		c.Response().Header().Set("Content-Type", "text/html")
-		c.Response().WriteHeader(http.StatusBadRequest)
-		return errors.LoginError("Invalid email or password").Render(c.Request().Context(), c.Response().Writer)
+		return h.renderError(c, http.StatusBadRequest, "Invalid email or password")
 	}
 
 	response, err := h.authService.Login(c.Request().Context(), &req)
 	if err != nil {
-
-		if strings.Contains(err.Error(), "invalid credentials") || strings.Contains(err.Error(), "user not found") {
-			c.Response().Header().Set("Content-Type", "text/html")
-			c.Response().WriteHeader(http.StatusUnauthorized)
-			return errors.LoginError("Invalid email or password").Render(c.Request().Context(), c.Response().Writer)
-		}
-		c.Response().Header().Set("Content-Type", "text/html")
-		c.Response().WriteHeader(http.StatusInternalServerError)
-		return errors.LoginError("Failed to login").Render(c.Request().Context(), c.Response().Writer)
+		statusCode, message := h.categorizeAuthError(err)
+		return h.renderError(c, statusCode, message)
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "auth_token"
-	cookie.Value = response.Token
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	cookie.Secure = false // make it true for HTTPS
-	cookie.SameSite = http.SameSiteStrictMode
-	cookie.MaxAge = 3600
-
-	c.SetCookie(cookie)
-	c.Response().Header().Set("HX-Location", "/")
-
-	return c.NoContent(http.StatusOK)
-
+	return h.handleAuthSuccess(c, response.Token, http.StatusOK)
 }
 
 func (h *AuthWEBHandler) Register(c echo.Context) error {
-	var req dto.RegisterRequest
-
-	req.FirstName = strings.ToLower(strings.TrimSpace(c.FormValue("firstname")))
-	req.LastName = strings.ToLower(strings.TrimSpace(c.FormValue("lastname")))
-	req.Email = strings.ToLower(strings.TrimSpace(c.FormValue("email")))
-	req.Password = c.FormValue("password")
+	req := dto.RegisterRequest{
+		FirstName: strings.TrimSpace(c.FormValue("firstname")),
+		LastName:  strings.TrimSpace(c.FormValue("lastname")),
+		Email:     strings.ToLower(strings.TrimSpace(c.FormValue("email"))),
+		Password:  c.FormValue("password"),
+	}
 
 	if err := h.validator.Struct(req); err != nil {
-		c.Response().Header().Set("Content-Type", "text/html")
-		c.Response().WriteHeader(http.StatusUnauthorized)
-		return errors.LoginError("Invalid email or password").Render(c.Request().Context(), c.Response().Writer)
+		return h.renderError(c, http.StatusBadRequest, "Invalid email or password")
 	}
 
 	response, err := h.authService.Register(c.Request().Context(), &req)
 	if err != nil {
-		if strings.Contains(err.Error(), "already exists") {
-			c.Response().Header().Set("Content-Type", "text/html")
-			c.Response().WriteHeader(http.StatusUnauthorized)
-			return errors.LoginError("User with this email already exists").Render(c.Request().Context(), c.Response().Writer)
-		}
-		c.Response().Header().Set("Content-Type", "text/html")
-		c.Response().WriteHeader(http.StatusInternalServerError)
-		return errors.LoginError("Failed to register").Render(c.Request().Context(), c.Response().Writer)
+		statusCode, message := h.categorizeAuthError(err)
+		return h.renderError(c, statusCode, message)
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "auth_token"
-	cookie.Value = response.Token
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	cookie.Secure = false // make it true on https
-	cookie.SameSite = http.SameSiteStrictMode
-	cookie.MaxAge = 3600
+	return h.handleAuthSuccess(c, response.Token, http.StatusCreated)
+}
 
+func (h *AuthWEBHandler) setAuthCokie(c echo.Context, token string) {
+	cookie := &http.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false, // make it true on https
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   3600,
+	}
 	c.SetCookie(cookie)
-	c.Response().Header().Set("HX-Location", "/")
+}
 
-	return c.NoContent(http.StatusCreated)
+func (h *AuthWEBHandler) renderError(c echo.Context, statusCode int, message string) error {
+	c.Response().Header().Set("Content-Type", "text/html")
+	c.Response().WriteHeader(statusCode)
+	return errors.AuthError(message).Render(c.Request().Context(), c.Response().Writer)
+}
+
+func (h *AuthWEBHandler) handleAuthSuccess(c echo.Context, token string, statusCode int) error {
+	h.setAuthCokie(c, token)
+	c.Response().Header().Set("HX-Location", "/")
+	return c.NoContent(statusCode)
+}
+
+func (h *AuthWEBHandler) categorizeAuthError(err error) (int, string) {
+	errStr := err.Error()
+
+	switch {
+	case strings.Contains(errStr, "invalid credentials") || strings.Contains(errStr, "user not found"):
+		return http.StatusUnauthorized, "Invalid email or password"
+	case strings.Contains(errStr, "already exists"):
+		return http.StatusConflict, "User with this email already exists"
+	default:
+		return http.StatusInternalServerError, "An error occurred. Please try again"
+	}
 }
