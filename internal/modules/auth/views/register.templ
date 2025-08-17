@@ -1,28 +1,31 @@
-package auth
-
-import "products/web/templates/layouts"
+package views
 
 templ RegisterPage() {
-	@layouts.AuthLayout("Register") {
+	@Base("Register") {
 		<h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
 		<form
-			hx-post="/api/auth/register"
+			hx-post="/register"
 			hx-trigger="submit"
-			hx-on:htmx:afterRequest="
-              const res = JSON.parse(event.detail.xhr.responseText);
-              if(res.success){
-                window.location.href = '/';
-              } else {
-                document.getElementById('register-error').innerText = res.error || 'Registration failed';
-              }"
+			hx-target-error="#error-container"
+			hx-swap="innerHTML"
 			class="space-y-4"
 		>
 			<div>
-				<label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+				<label for="firstname" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
 				<input
 					type="text"
-					name="username"
-					id="username"
+					name="firstname"
+					id="firstname"
+					required
+					class="mt-1 p-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+				/>
+			</div>
+			<div>
+				<label for="lastname" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
+				<input
+					type="text"
+					name="lastname"
+					id="lastname"
 					required
 					class="mt-1 p-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
 				/>
@@ -47,7 +50,7 @@ templ RegisterPage() {
 					class="mt-1 p-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
 				/>
 			</div>
-			<p id="register-error" class="text-red-500 text-sm"></p>
+			<div id="error-container" class="text-red-500 text-sm"></div>
 			<button
 				type="submit"
 				class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition"

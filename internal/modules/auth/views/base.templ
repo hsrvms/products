@@ -1,6 +1,6 @@
-package layouts
+package views
 
-templ AuthLayout(title string) {
+templ Base(title string) {
 	<!DOCTYPE html>
 	<html
 		lang="en"
@@ -14,7 +14,7 @@ templ AuthLayout(title string) {
 			<title>{ title }</title>
 			<script src="https://cdn.tailwindcss.com"></script>
 			<script src="/assets/js/htmx.min.js" defer></script>
-			// <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" integrity="sha384-Akqfrbj/HpNVo8k11SXBb6TlBWmXXlYQrCSqEWmyKJe+hDm3Z/B2WVG4smwBkRVm" crossorigin="anonymous"></script>
+			<script src="/assets/js/htmx-ext-response-targets.js" defer></script>
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 			<script>
 				tailwind.config = {
@@ -22,7 +22,10 @@ templ AuthLayout(title string) {
 				}
 			</script>
 		</head>
-		<body class="h-full min-h-screen flex items-center justify-center bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+		<body
+			class="h-full min-h-screen flex items-center justify-center bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100"
+			hx-ext="response-targets"
+		>
 			<div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md relative">
 				{ children... }
 				<!-- Theme toggle button -->

@@ -1,21 +1,13 @@
-package auth
-
-import "products/web/templates/layouts"
+package views
 
 templ LoginPage() {
-	@layouts.AuthLayout("Login") {
+	@Base("Login") {
 		<h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
 		<form
-			hx-post="/api/auth/login"
-			hx-encoding="json"
+			hx-post="/login"
 			hx-trigger="submit"
-			hx-on:htmx:afterRequest="
-              const res = JSON.parse(event.detail.xhr.responseText);
-              if(res.success){
-                window.location.href = '/';
-              } else {
-                document.getElementById('login-error').innerText = res.error || 'Login failed';
-              }"
+			hx-target-error="#error-container"
+			hx-swap="innerHTML"
 			class="space-y-4"
 		>
 			<div>
@@ -38,7 +30,7 @@ templ LoginPage() {
 					class="mt-1 p-2 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
 				/>
 			</div>
-			<p id="login-error" class="text-red-500 text-sm"></p>
+			<div id="error-container" class="text-red-500 text-sm"></div>
 			<button
 				type="submit"
 				class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition"

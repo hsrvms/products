@@ -15,14 +15,17 @@ func RegisterRoutes(e *echo.Echo, api *echo.Group, database *db.Database) {
 	authRepo := repositories.NewRepository(database)
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(authRepo, jwtService)
-	authHandler := handlers.NewHandler(authService)
+	authAPIHandler := handlers.NewAuthAPIHandler(authService)
+	authWEBHandler := handlers.NewAuthWEBHandler(authService)
 
-	e.GET("/login", authHandler.ViewLogin)
-	e.GET("/register", authHandler.ViewRegister)
+	e.GET("/login", authWEBHandler.ViewLogin)
+	e.POST("/login", authWEBHandler.Login)
+	e.GET("/register", authWEBHandler.ViewRegister)
+	e.POST("/register", authWEBHandler.Register)
 
 	authGroup := api.Group("/auth")
-	authGroup.POST("/register", authHandler.Register)
-	authGroup.POST("/login", authHandler.Login)
+	authGroup.POST("/register", authAPIHandler.Register)
+	authGroup.POST("/login", authAPIHandler.Login)
 
-	api.GET("/profile", authHandler.GetProfile, middlewares.JWTMiddleware(jwtService))
+	api.GET("/profile", authAPIHandler.GetProfile, middlewares.JWTMiddleware(jwtService))
 }

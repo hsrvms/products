@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"products/internal/modules/auth/dto"
 	"products/internal/modules/auth/services"
@@ -11,21 +10,21 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type AuthHandler struct {
+type AuthAPIHandler struct {
 	authService *services.AuthService
 	validator   *validator.Validate
 }
 
-func NewHandler(authService *services.AuthService) *AuthHandler {
-	return &AuthHandler{
+func NewAuthAPIHandler(authService *services.AuthService) *AuthAPIHandler {
+	return &AuthAPIHandler{
 		authService: authService,
 		validator:   validator.New(),
 	}
 }
 
-func (h *AuthHandler) Register(c echo.Context) error {
-
+func (h *AuthAPIHandler) Register(c echo.Context) error {
 	var req dto.RegisterRequest
+
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "Invalid request body",
@@ -53,37 +52,16 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		})
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "auth_token"
-	cookie.Value = response.Token
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	cookie.Secure = false // make it true on https
-	cookie.SameSite = http.SameSiteStrictMode
-	cookie.MaxAge = 3600
-	c.SetCookie(cookie)
-
-	c.Response().Header().Set("HX-Location", "/")
-
 	return c.JSON(http.StatusCreated, response)
 }
 
-func (h *AuthHandler) Login(c echo.Context) error {
+func (h *AuthAPIHandler) Login(c echo.Context) error {
 	var req dto.LoginRequest
 
-	ct := c.Request().Header.Get("Content-Type")
-
-	if strings.HasPrefix(ct, "application/json") {
-		fmt.Println(1)
-		if err := c.Bind(&req); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"error": "Invalid JSON body",
-			})
-		}
-	} else {
-		fmt.Println(2)
-		req.Email = strings.ToLower(strings.TrimSpace(c.FormValue("email")))
-		req.Password = c.FormValue("password")
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid JSON body",
+		})
 	}
 
 	if err := h.validator.Struct(req); err != nil {
@@ -106,22 +84,10 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		})
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "auth_token"
-	cookie.Value = response.Token
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	cookie.Secure = false // make it true on https
-	cookie.SameSite = http.SameSiteStrictMode
-	cookie.MaxAge = 3600
-	c.SetCookie(cookie)
-
-	c.Response().Header().Set("HX-Location", "/")
-
 	return c.JSON(http.StatusOK, response)
 }
 
-func (h *AuthHandler) GetProfile(c echo.Context) error {
+func (h *AuthAPIHandler) GetProfile(c echo.Context) error {
 	userID, err := services.GetUserIDFromContext(c)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
