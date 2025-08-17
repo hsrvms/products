@@ -1,4 +1,4 @@
-package layouts
+package views
 
 templ Base(title string) {
 	<!DOCTYPE html>
@@ -13,7 +13,8 @@ templ Base(title string) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title }</title>
 			<script src="https://cdn.tailwindcss.com"></script>
-			<script src="/assets/js/htmx.min.js"></script>
+			<script src="/assets/js/htmx.min.js" defer></script>
+			<script src="/assets/js/htmx-ext-response-targets.js" defer></script>
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 			<script>
 				tailwind.config = {
@@ -21,11 +22,16 @@ templ Base(title string) {
 				}
 			</script>
 		</head>
-		<body class="bg-gray-100">
-			@Header()
-			<main class="max-w-sm mx-auto p-4">
-				{ children... }
-			</main>
+		<body class="h-screen flex bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+			@Sidebar()
+			<!-- Main content -->
+			<div class="flex-1 flex flex-col min-h-screen ml-0 md:ml-64 transition-all duration-200">
+				@Header(title)
+				<!-- Page Content -->
+				<main class="p-6 flex-1 overflow-y-auto">
+					{ children... }
+				</main>
+			</div>
 		</body>
 	</html>
 }

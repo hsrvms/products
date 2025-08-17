@@ -97,7 +97,7 @@ func (h *AuthWEBHandler) renderError(c echo.Context, statusCode int, message str
 
 func (h *AuthWEBHandler) handleAuthSuccess(c echo.Context, token string, statusCode int) error {
 	h.setAuthCokie(c, token)
-	c.Response().Header().Set("HX-Location", "/")
+	c.Response().Header().Set("HX-Location", "/dashboard")
 	return c.NoContent(statusCode)
 }
 

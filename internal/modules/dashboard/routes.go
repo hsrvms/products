@@ -1,6 +1,8 @@
 package dashboard
 
 import (
+	"products/internal/modules/auth/middlewares"
+	"products/internal/modules/auth/services"
 	"products/internal/modules/dashboard/handlers"
 	"products/pkg/db"
 
@@ -8,7 +10,8 @@ import (
 )
 
 func RegisterRoutes(e *echo.Echo, api *echo.Group, database *db.Database) {
-	dashboardHandler := handlers.NewHandler()
+	dashboardHandler := handlers.NewDashboardWebHandler()
+	jwtService := services.NewJWTService()
 
-	e.GET("/", dashboardHandler.ViewDashboard)
+	e.GET("/dashboard", dashboardHandler.ViewDashboard, middlewares.JWTMiddleware(jwtService))
 }

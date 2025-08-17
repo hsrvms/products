@@ -1,0 +1,27 @@
+package views
+
+templ Sidebar() {
+	<div
+		class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg z-40 transform transition-transform duration-200 ease-in-out"
+		:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
+	>
+		<div class="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700">
+			<h2 class="text-xl font-bold">MyApp</h2>
+			<button @click="sidebarOpen = false" class="md:hidden text-gray-500 dark:text-gray-300">
+				✕
+			</button>
+		</div>
+		<nav class="p-4 space-y-2">
+			<a href="#" class="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">🏠 Dashboard</a>
+			<a href="#" class="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">📦 Orders</a>
+			<a href="#" class="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">👤 Users</a>
+			<a href="#" class="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">⚙ Settings</a>
+		</nav>
+	</div>
+	<!-- Overlay for mobile -->
+	<div
+		class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+		:class="{ 'hidden': !sidebarOpen }"
+		@click="sidebarOpen = false"
+	></div>
+}
