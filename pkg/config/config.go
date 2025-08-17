@@ -41,7 +41,7 @@ func New() *Config {
 			Port:     getEnvAsInt("DB_PORT", 5432),
 			User:     getEnv("DB_USER", "postgres"),
 			Password: getEnv("DB_PASSWORD", "postgres"),
-			DBName:   getEnv("DB_NAME", "products"),
+			DBName:   getEnv("DB_NAME", "go-starter"),
 			SSLMode:  getEnv("DB_SSL_MODE", "disable"),
 		},
 	}

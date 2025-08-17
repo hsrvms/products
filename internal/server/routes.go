@@ -1,9 +1,9 @@
 package server
 
 import (
+	"go-starter/internal/modules/auth"
+	"go-starter/internal/modules/dashboard"
 	"net/http"
-	"products/internal/modules/auth"
-	"products/internal/modules/dashboard"
 
 	"github.com/labstack/echo/v4"
 )

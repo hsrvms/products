@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
+	"go-starter/pkg/config"
+	"go-starter/pkg/db"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"products/pkg/config"
-	"products/pkg/db"
 	"time"
 
 	"github.com/labstack/echo/v4"

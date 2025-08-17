@@ -1,10 +1,10 @@
 package main
 
 import (
+	"go-starter/internal/server"
+	"go-starter/pkg/config"
+	"go-starter/pkg/db"
 	"log"
-	"products/internal/server"
-	"products/pkg/config"
-	"products/pkg/db"
 )
 
 func main() {

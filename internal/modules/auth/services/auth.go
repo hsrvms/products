@@ -3,9 +3,9 @@ package services
 import (
 	"context"
 	"fmt"
-	"products/internal/modules/auth/dto"
-	"products/internal/modules/auth/models"
-	"products/internal/modules/auth/repositories"
+	"go-starter/internal/modules/auth/dto"
+	"go-starter/internal/modules/auth/models"
+	"go-starter/internal/modules/auth/repositories"
 )
 
 type AuthService struct {

@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"go-starter/internal/modules/auth/dto"
+	"go-starter/internal/modules/auth/services"
+	"go-starter/internal/modules/auth/views"
+	"go-starter/internal/modules/auth/views/errors"
 	"net/http"
-	"products/internal/modules/auth/dto"
-	"products/internal/modules/auth/services"
-	"products/internal/modules/auth/views"
-	"products/internal/modules/auth/views/errors"
 
 	"strings"
 

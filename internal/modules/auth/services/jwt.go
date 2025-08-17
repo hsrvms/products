@@ -2,8 +2,8 @@ package services
 
 import (
 	"fmt"
+	"go-starter/internal/modules/auth/models"
 	"os"
-	"products/internal/modules/auth/models"
 	"strconv"
 	"time"
 
@@ -30,7 +30,7 @@ func NewJWTService() *JWTService {
 
 	issuer := os.Getenv("JWT_ISSUER")
 	if issuer == "" {
-		issuer = "products"
+		issuer = "go-starter"
 	}
 
 	return &JWTService{

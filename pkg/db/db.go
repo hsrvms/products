@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
+	"go-starter/pkg/config"
 	"log"
-	"products/pkg/config"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
