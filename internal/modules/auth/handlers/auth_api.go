@@ -10,29 +10,21 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type AuthHandler struct {
+type AuthAPIHandler struct {
 	authService *services.AuthService
 	validator   *validator.Validate
 }
 
-func NewHandler(authService *services.AuthService) *AuthHandler {
-	return &AuthHandler{
+func NewAuthAPIHandler(authService *services.AuthService) *AuthAPIHandler {
+	return &AuthAPIHandler{
 		authService: authService,
 		validator:   validator.New(),
 	}
 }
 
-func (h *AuthHandler) Register(c echo.Context) error {
-	// bodyBytes, err := io.ReadAll(c.Request().Body)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, map[string]string{
-	// 		"error": "failed to read request body",
-	// 	})
-	// }
-
-	// fmt.Println("Raw request Body:", string(bodyBytes))
-
+func (h *AuthAPIHandler) Register(c echo.Context) error {
 	var req dto.RegisterRequest
+
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "Invalid request body",
@@ -63,11 +55,12 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	return c.JSON(http.StatusCreated, response)
 }
 
-func (h *AuthHandler) Login(c echo.Context) error {
+func (h *AuthAPIHandler) Login(c echo.Context) error {
 	var req dto.LoginRequest
+
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid request body",
+			"error": "Invalid JSON body",
 		})
 	}
 
@@ -94,7 +87,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func (h *AuthHandler) GetProfile(c echo.Context) error {
+func (h *AuthAPIHandler) GetProfile(c echo.Context) error {
 	userID, err := services.GetUserIDFromContext(c)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{

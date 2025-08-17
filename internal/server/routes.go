@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"products/internal/modules/auth"
+	"products/internal/modules/dashboard"
 
 	"github.com/labstack/echo/v4"
 )
@@ -15,5 +16,5 @@ func (s *Server) initRoutes() {
 	})
 
 	auth.RegisterRoutes(s.Echo, api, s.DB)
-
+	dashboard.RegisterRoutes(s.Echo, api, s.DB)
 }

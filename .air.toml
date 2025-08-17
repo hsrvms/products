@@ -1,7 +1,8 @@
 root = "."
 tmp_dir = "tmp"
 [build]
-cmd = "templ generate && go build -o ./tmp/main ./cmd/server/main.go"
+# cmd = "templ generate && go build -o ./tmp/main ./cmd/server/main.go"
+cmd = "templ generate && templ fmt . && go build -o ./tmp/main ./cmd/server/main.go"
 bin = "./tmp/main"
 delay = 1000
 exclude_dir = ["assets", "tmp", "vendor", ".git", "web/static"]

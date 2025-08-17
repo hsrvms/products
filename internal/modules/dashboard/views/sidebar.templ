@@ -1,0 +1,44 @@
+package views
+
+templ Sidebar() {
+	<div class="flex">
+		<!-- Mobile overlay -->
+		<div x-show="sidebarOpen" class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" @click="sidebarOpen = false"></div>
+		<!-- Sidebar itself -->
+		<aside
+			:class="{'w-64': !sidebarCollapsed, 'w-20': sidebarCollapsed}"
+			class="fixed lg:relative z-50 flex flex-col h-full bg-white dark:bg-gray-800 shadow-lg transition-all duration-300"
+		>
+			<!-- Logo -->
+			<div class="flex items-center justify-between p-4">
+				<div class="flex items-center space-x-2">
+					<img src="/assets/logo.png" alt="Logo" class="h-8 w-8"/>
+					<span x-show="!sidebarCollapsed" class="font-bold text-lg">MyApp</span>
+				</div>
+				<!-- Collapse button (desktop only) -->
+				<button @click="sidebarCollapsed = !sidebarCollapsed" class="hidden lg:block p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+					☰
+				</button>
+			</div>
+			<!-- Navigation -->
+			<nav class="flex-1 px-2 space-y-2">
+				<a href="#" class="flex items-center p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+					<img
+						src="/assets/icons/dashboard.svg"
+						alt="Dashboard"
+						class="h-8 w-8 dark:invert dark:brightness-200"
+					/>
+					<span x-show="!sidebarCollapsed" class="ml-3">Dashboard</span>
+				</a>
+				<a href="#" class="flex items-center p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+					<img
+						src="/assets/icons/box.svg"
+						alt="Products"
+						class="h-8 w-8 dark:invert dark:brightness-200"
+					/>
+					<span x-show="!sidebarCollapsed" class="ml-3">Products</span>
+				</a>
+			</nav>
+		</aside>
+	</div>
+}
