@@ -1,10 +1,14 @@
 package views
 
-templ Base(title string) {
+templ Base(title string, currentPage string) {
 	<!DOCTYPE html>
 	<html
 		lang="en"
-		x-data="{ theme: localStorage.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') }"
+		x-data="{
+			sidebarOpen: false,
+			sidebarCollapsed: false,
+			theme: localStorage.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+		}"
 		:class="{ 'dark': theme === 'dark' }"
 		x-init="$watch('theme', value => localStorage.theme = value)"
 	>
@@ -22,13 +26,14 @@ templ Base(title string) {
 				}
 			</script>
 		</head>
-		<body class="h-screen flex bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+		<body class="h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex">
 			@Sidebar()
-			<!-- Main content -->
-			<div class="flex-1 flex flex-col min-h-screen ml-0 md:ml-64 transition-all duration-200">
-				@Header(title)
+			<!-- Main Content -->
+			<div class="flex-1 flex flex-col ml-0 lg:ml-auto">
+				<!-- Header -->
+				@Header(title, currentPage)
 				<!-- Page Content -->
-				<main class="p-6 flex-1 overflow-y-auto">
+				<main class="flex-1 p-4">
 					{ children... }
 				</main>
 			</div>

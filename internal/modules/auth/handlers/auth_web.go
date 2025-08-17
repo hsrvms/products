@@ -84,7 +84,7 @@ func (h *AuthWEBHandler) setAuthCokie(c echo.Context, token string) {
 		HttpOnly: true,
 		Secure:   false, // make it true on https
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   3600,
+		MaxAge:   360000,
 	}
 	c.SetCookie(cookie)
 }
