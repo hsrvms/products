@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 type Claims struct {
-	UserID int    `json:"user_id"`
-	Email  string `json:"email"`
+	UserID uuid.UUID `json:"user_id"`
+	Email  string    `json:"email"`
 	jwt.RegisteredClaims
 }
 
@@ -59,7 +60,7 @@ func (j *JWTService) GenerateToken(user *models.User) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    j.issuer,
-			Subject:   strconv.Itoa(user.ID),
+			Subject:   user.ID.String(),
 		},
 	}
 
@@ -93,15 +94,15 @@ func (j *JWTService) ValidateToken(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-func GetUserIDFromContext(c echo.Context) (int, error) {
+func GetUserIDFromContext(c echo.Context) (uuid.UUID, error) {
 	user := c.Get("user")
 	if user == nil {
-		return 0, fmt.Errorf("user not found in context")
+		return uuid.Nil, fmt.Errorf("user not found in context")
 	}
 
 	claims, ok := user.(*Claims)
 	if !ok {
-		return 0, fmt.Errorf("invalid user claims in context")
+		return uuid.Nil, fmt.Errorf("invalid user claims in context")
 	}
 
 	return claims.UserID, nil

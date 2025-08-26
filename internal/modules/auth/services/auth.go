@@ -6,6 +6,8 @@ import (
 	"go-starter/internal/modules/auth/dto"
 	"go-starter/internal/modules/auth/models"
 	"go-starter/internal/modules/auth/repositories"
+
+	"github.com/google/uuid"
 )
 
 type AuthService struct {
@@ -78,6 +80,6 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.Au
 	}, nil
 }
 
-func (s *AuthService) GetUserByID(ctx context.Context, id int) (*models.User, error) {
+func (s *AuthService) GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	return s.repo.GetUserByID(ctx, id)
 }

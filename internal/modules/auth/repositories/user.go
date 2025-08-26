@@ -2,15 +2,15 @@ package repositories
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"go-starter/internal/modules/auth/models"
 	"go-starter/pkg/db"
-	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type UserRepository struct {
-	// db *sql.DB
 	db *db.Database
 }
 
@@ -19,117 +19,106 @@ func NewRepository(db *db.Database) *UserRepository {
 }
 
 func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) error {
-	query := `
-		INSERT INTO users (email, password_hash, first_name, last_name, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id`
+	// Generate UUID if not already set
+	if user.ID == uuid.Nil {
+		user.ID = uuid.New()
+	}
 
-	now := time.Now()
-	user.CreatedAt = now
-	user.UpdatedAt = now
-
-	err := r.db.Pool.QueryRow(
-		ctx,
-		query,
-		user.Email,
-		user.Password,
-		user.FirstName,
-		user.LastName,
-		user.CreatedAt,
-		user.UpdatedAt,
-	).Scan(&user.ID)
-
-	if err != nil {
-		return fmt.Errorf("failed to create user: %w", err)
+	result := r.db.DB.WithContext(ctx).Create(user)
+	if result.Error != nil {
+		return fmt.Errorf("failed to create user: %w", result.Error)
 	}
 
 	return nil
 }
 
 func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	user := &models.User{}
-	query := `
-		SELECT id, email, password_hash, first_name, last_name, created_at, updated_at
-		FROM users
-		WHERE email = $1`
+	var user models.User
 
-	err := r.db.Pool.QueryRow(ctx, query, email).Scan(
-		&user.ID,
-		&user.Email,
-		&user.Password,
-		&user.FirstName,
-		&user.LastName,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
+	result := r.db.DB.WithContext(ctx).Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("user not found")
 		}
-		return nil, fmt.Errorf("failed to get user: %w", err)
+		return nil, fmt.Errorf("failed to get user: %w", result.Error)
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (r *UserRepository) GetUserByID(ctx context.Context, id int) (*models.User, error) {
-	user := &models.User{}
-	query := `
-		SELECT id, email, password_hash, first_name, last_name, created_at, updated_at
-		FROM users
-		WHERE id = $1`
+func (r *UserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
+	var user models.User
 
-	err := r.db.Pool.QueryRow(ctx, query, id).Scan(
-		&user.ID,
-		&user.Email,
-		&user.Password,
-		&user.FirstName,
-		&user.LastName,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
+	result := r.db.DB.WithContext(ctx).Where("id = ?", id).First(&user)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("user not found")
 		}
-		return nil, fmt.Errorf("failed to get user: %w", err)
+		return nil, fmt.Errorf("failed to get user: %w", result.Error)
 	}
 
-	return user, nil
+	return &user, nil
+}
+
+func (r *UserRepository) UpdateUser(ctx context.Context, user *models.User) error {
+	result := r.db.DB.WithContext(ctx).Save(user)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update user: %w", result.Error)
+	}
+
+	return nil
+}
+
+func (r *UserRepository) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	result := r.db.DB.WithContext(ctx).Delete(&models.User{}, id)
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete user: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
 }
 
 func (r *UserRepository) EmailExists(ctx context.Context, email string) (bool, error) {
-	var exists bool
-	query := `SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)`
+	var count int64
 
-	err := r.db.Pool.QueryRow(ctx, query, email).Scan(&exists)
-	if err != nil {
-		return false, fmt.Errorf("failed to check email existence: %w", err)
+	result := r.db.DB.WithContext(ctx).Model(&models.User{}).Where("email = ?", email).Count(&count)
+	if result.Error != nil {
+		return false, fmt.Errorf("failed to check email existence: %w", result.Error)
 	}
 
-	return exists, nil
+	return count > 0, nil
 }
 
-func (r *UserRepository) CreateUsersTable(ctx context.Context) error {
-	query := `
-		CREATE TABLE IF NOT EXISTS users (
-			id SERIAL PRIMARY KEY,
-			email VARCHAR(255) UNIQUE NOT NULL,
-			password_hash VARCHAR(255) NOT NULL,
-			first_name VARCHAR(100) NOT NULL,
-			last_name VARCHAR(100) NOT NULL,
-			created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-			updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-		);
+func (r *UserRepository) ListUsers(ctx context.Context, limit, offset int) ([]*models.User, error) {
+	var users []*models.User
 
-		CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-	`
+	result := r.db.DB.WithContext(ctx).Limit(limit).Offset(offset).Find(&users)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to list users: %w", result.Error)
+	}
 
-	_, err := r.db.Pool.Exec(ctx, query)
-	if err != nil {
-		return fmt.Errorf("failed to create users table: %w", err)
+	return users, nil
+}
+
+func (r *UserRepository) GetUserCount(ctx context.Context) (int64, error) {
+	var count int64
+
+	result := r.db.DB.WithContext(ctx).Model(&models.User{}).Count(&count)
+	if result.Error != nil {
+		return 0, fmt.Errorf("failed to get user count: %w", result.Error)
+	}
+
+	return count, nil
+}
+
+// Migrate creates the users table using GORM auto-migration
+func (r *UserRepository) Migrate(ctx context.Context) error {
+	if err := r.db.DB.WithContext(ctx).AutoMigrate(&models.User{}); err != nil {
+		return fmt.Errorf("failed to migrate users table: %w", err)
 	}
 
 	return nil

@@ -23,8 +23,6 @@ services:
     image: postgres:14-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-      - ./pkg/db/init.sql:/docker-entrypoint-initdb.d/01_init.sql
-      # - ./pkg/db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
