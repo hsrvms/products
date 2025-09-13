@@ -1,5 +1,4 @@
-
-FROM golang:1.24-alpine
+FROM golang:1.25-alpine
 
 # Install necessary development tools
 RUN apk add --no-cache gcc musl-dev git
